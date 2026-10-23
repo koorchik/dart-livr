@@ -54,6 +54,10 @@ Numeric rules reject booleans; integer rules return `int`, decimal rules `double
 
 `.github/workflows/test.yml` runs analyze, the format check, the VM tests and the Node.js tests on the lowest supported SDK (`environment.sdk` in `pubspec.yaml`, keep them in sync) and on the latest stable one. The lowest SDK is the lowest one the dev dependencies allow (`lints ^6` needs 3.8).
 
+## Releases
+
+The package is on pub.dev (publisher livr-spec.org). `.github/workflows/publish.yml` publishes a tag like `v0.2.0` through the automated publishing of pub.dev (tag pattern `v{{version}}`). To release: set `version` in `pubspec.yaml`, add the version to `CHANGELOG.md`, run `dart pub publish --dry-run`, commit, then tag the commit `vX.Y.Z` and push the tag. The version of the tag must be the version in `pubspec.yaml`. A published version cannot be deleted, only retracted within 7 days.
+
 ## Code style
 
 `dart format` (default settings), `package:lints/recommended` plus the rules in `analysis_options.yaml`, strict casts, inference and raw types. Comments explain why, in plain sentences.

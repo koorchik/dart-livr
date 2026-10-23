@@ -1,5 +1,7 @@
 # livr
 
+[![pub package](https://img.shields.io/pub/v/livr.svg)](https://pub.dev/packages/livr) [![Test](https://github.com/koorchik/dart-livr/actions/workflows/test.yml/badge.svg)](https://github.com/koorchik/dart-livr/actions/workflows/test.yml)
+
 Fast, zero-dependency Dart validator for the [LIVR specification](https://livr-spec.org) (Language Independent Validation Rules, v2.0). Rules are plain data: store them in JSON, send them over the wire and validate the same way, with the same error codes, in Dart, JavaScript, Perl, Python, Go and [other languages](https://livr-spec.org/introduction/implementations.html).
 
 - Returns only the fields that have rules, everything else is dropped.
