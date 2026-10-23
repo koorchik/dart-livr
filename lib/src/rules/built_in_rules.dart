@@ -1,0 +1,76 @@
+import '../rule.dart';
+import 'common/any_object.dart';
+import 'common/not_empty.dart';
+import 'common/not_empty_list.dart';
+import 'common/required.dart';
+import 'meta/list_of.dart';
+import 'meta/list_of_different_objects.dart';
+import 'meta/list_of_objects.dart';
+import 'meta/nested_object.dart';
+import 'meta/or.dart';
+import 'meta/variable_object.dart';
+import 'modifiers/default.dart';
+import 'modifiers/leave_only.dart';
+import 'modifiers/remove.dart';
+import 'modifiers/to_lc.dart';
+import 'modifiers/to_uc.dart';
+import 'modifiers/trim.dart';
+import 'numeric/decimal.dart';
+import 'numeric/integer.dart';
+import 'numeric/max_number.dart';
+import 'numeric/min_number.dart';
+import 'numeric/number_between.dart';
+import 'numeric/positive_decimal.dart';
+import 'numeric/positive_integer.dart';
+import 'special/email.dart';
+import 'special/equal_to_field.dart';
+import 'special/iso_date.dart';
+import 'special/url.dart';
+import 'string/eq.dart';
+import 'string/length_between.dart';
+import 'string/length_equal.dart';
+import 'string/like.dart';
+import 'string/max_length.dart';
+import 'string/min_length.dart';
+import 'string/one_of.dart';
+import 'string/string.dart';
+
+/// The rules of the LIVR specification by their names in the specification.
+/// Validators also find them by their camelCase names (`minLength`).
+const Map<String, RuleBuilder> builtInRules = {
+  'required': required,
+  'not_empty': notEmpty,
+  'not_empty_list': notEmptyList,
+  'any_object': anyObject,
+  'string': string,
+  'eq': eq,
+  'one_of': oneOf,
+  'max_length': maxLength,
+  'min_length': minLength,
+  'length_equal': lengthEqual,
+  'length_between': lengthBetween,
+  'like': like,
+  'integer': integer,
+  'positive_integer': positiveInteger,
+  'decimal': decimal,
+  'positive_decimal': positiveDecimal,
+  'max_number': maxNumber,
+  'min_number': minNumber,
+  'number_between': numberBetween,
+  'email': email,
+  'equal_to_field': equalToField,
+  'url': url,
+  'iso_date': isoDate,
+  'default': defaultValue,
+  'trim': trim,
+  'to_lc': toLc,
+  'to_uc': toUc,
+  'remove': remove,
+  'leave_only': leaveOnly,
+  'nested_object': nestedObject,
+  'variable_object': variableObject,
+  'list_of': listOf,
+  'list_of_objects': listOfObjects,
+  'or': or,
+  'list_of_different_objects': listOfDifferentObjects,
+};

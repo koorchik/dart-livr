@@ -1,0 +1,16 @@
+# Dart: https://dart.dev/tools/pub/private-files
+.dart_tool/
+build/
+doc/api/
+coverage/
+# A library package: tests run against the latest compatible versions
+pubspec.lock
+
+# IntelliJ
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Mac
+.DS_Store
