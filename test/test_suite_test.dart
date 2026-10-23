@@ -14,8 +14,10 @@ void main() {
           final result = _validator(suiteCase).validate(suiteCase.input);
 
           expect(result, isA<ValidationSuccess<Map<String, Object?>>>());
-          expect((result as ValidationSuccess<Map<String, Object?>>).output,
-              suiteCase.expected);
+          expect(
+            (result as ValidationSuccess<Map<String, Object?>>).output,
+            suiteCase.expected,
+          );
         });
       }
     });
@@ -38,6 +40,7 @@ void main() {
 Validator<Map<String, Object?>> _validator(SuiteCase suiteCase) =>
     Validator.untyped(
       suiteCase.rules,
-      aliases: suiteCase.aliases
-          ?.map((alias) => LivrAlias.fromJson(alias as Map<String, Object?>)),
+      aliases: suiteCase.aliases?.map(
+        (alias) => LivrAlias.fromJson(alias as Map<String, Object?>),
+      ),
     );

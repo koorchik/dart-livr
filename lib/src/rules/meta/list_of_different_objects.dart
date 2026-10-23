@@ -42,8 +42,8 @@ LivrRule listOfDifferentObjects(List<Object?> args, RuleContext context) {
         final selectorValue = item[selectorField];
         final validateObject =
             isNoValue(selectorValue) || !isPrimitive(selectorValue)
-                ? null
-                : validators[livrToString(selectorValue)];
+            ? null
+            : validators[livrToString(selectorValue)];
         if (validateObject != null) result = validateObject(item, allValues);
       }
       result ??= RuleResult.error('FORMAT_ERROR');

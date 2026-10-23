@@ -23,7 +23,8 @@ LivrRule leaveOnly(List<Object?> args, RuleContext context) {
     if (isNoValue(value) || !isPrimitive(value)) return RuleResult.valid;
 
     return RuleResult.value(
-        _leaveOnly(livrToString(value), asciiChars, otherChars));
+      _leaveOnly(livrToString(value), asciiChars, otherChars),
+    );
   };
 }
 

@@ -40,17 +40,14 @@ void main() {
       'email': ['required', 'email', 'to_lc'],
       'age': [
         'positiveInteger',
-        {'minNumber': 18}
+        {'minNumber': 18},
       ],
       'password': [
         'required',
-        {'strong_password': 8}
+        {'strong_password': 8},
       ],
       'address': {
-        'nested_object': {
-          'city': 'required',
-          'zip': 'positive_integer',
-        },
+        'nested_object': {'city': 'required', 'zip': 'positive_integer'},
       },
       'role': {'default': 'user'},
     },
@@ -72,19 +69,23 @@ void main() {
   switch (validator.validate(input)) {
     case ValidationSuccess(:final output):
       // john@example.com 25 Kyiv user
-      print('${output.email} ${output.age} ${output.address?.city} '
-          '${output.role}');
+      print(
+        '${output.email} ${output.age} ${output.address?.city} '
+        '${output.role}',
+      );
     case ValidationFailure(:final errors):
       print(errors);
   }
 
   // ValidationFailure({age: TOO_LOW, password: WEAK_PASSWORD,
   //   address: {zip: NOT_POSITIVE_INTEGER}})
-  print(validator.validate({
-    'name': 'John',
-    'email': 'john@example.com',
-    'age': 16,
-    'password': 'secret',
-    'address': {'city': 'Kyiv', 'zip': 'abc'},
-  }));
+  print(
+    validator.validate({
+      'name': 'John',
+      'email': 'john@example.com',
+      'age': 16,
+      'password': 'secret',
+      'address': {'city': 'Kyiv', 'zip': 'abc'},
+    }),
+  );
 }

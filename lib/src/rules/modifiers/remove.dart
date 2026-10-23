@@ -23,7 +23,8 @@ LivrRule remove(List<Object?> args, RuleContext context) {
     if (isNoValue(value) || !isPrimitive(value)) return RuleResult.valid;
 
     return RuleResult.value(
-        _remove(livrToString(value), asciiChars, otherChars));
+      _remove(livrToString(value), asciiChars, otherChars),
+    );
   };
 }
 

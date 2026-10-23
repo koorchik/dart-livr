@@ -163,12 +163,11 @@ final class Validator<T> {
     Map<String, RuleBuilder>? rules,
     Iterable<LivrAlias>? aliases,
     bool? autoTrim,
-  }) =>
-      Validator._(
-        _compile(schema, rules, aliases),
-        autoTrim ?? defaultAutoTrim,
-        convert,
-      );
+  }) => Validator._(
+    _compile(schema, rules, aliases),
+    autoTrim ?? defaultAutoTrim,
+    convert,
+  );
 
   /// Creates a validator for [schema] that returns the output as a `Map`,
   /// without a type: for schemas built at run time (loaded from a database,
@@ -179,12 +178,11 @@ final class Validator<T> {
     Map<String, RuleBuilder>? rules,
     Iterable<LivrAlias>? aliases,
     bool? autoTrim,
-  }) =>
-      Validator._(
-        _compile(schema, rules, aliases),
-        autoTrim ?? defaultAutoTrim,
-        null,
-      );
+  }) => Validator._(
+    _compile(schema, rules, aliases),
+    autoTrim ?? defaultAutoTrim,
+    null,
+  );
 
   Validator._(this._schema, this.autoTrim, this._convert);
 

@@ -5,5 +5,5 @@ LivrRule notEmpty(List<Object?> args, RuleContext context) => _notEmpty;
 
 RuleResult _notEmpty(Object? value, Map<Object?, Object?> allValues) =>
     value is String && value.isEmpty
-        ? RuleResult.error('CANNOT_BE_EMPTY')
-        : RuleResult.valid;
+    ? RuleResult.error('CANNOT_BE_EMPTY')
+    : RuleResult.valid;

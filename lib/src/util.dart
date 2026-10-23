@@ -103,8 +103,9 @@ num? parseNumber(String str) {
 
   if (isInteger && digits <= 15) return isNegative ? -intValue : intValue;
 
-  final numberStr =
-      start == 0 && end == length ? str : str.substring(start, end);
+  final numberStr = start == 0 && end == length
+      ? str
+      : str.substring(start, end);
   if (isInteger) {
     final parsed = int.tryParse(numberStr);
     if (parsed != null) return parsed;

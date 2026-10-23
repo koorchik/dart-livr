@@ -16,11 +16,11 @@ final Map<String, Object?> simpleSchema = {
   'email': ['required', 'email'],
   'age': ['required', 'positive_integer'],
   'gender': {
-    'one_of': ['male', 'female']
+    'one_of': ['male', 'female'],
   },
   'password': [
     'required',
-    {'min_length': 8}
+    {'min_length': 8},
   ],
 };
 
@@ -31,22 +31,22 @@ extension type SimpleForm(Map<String, Object?> _) {
 }
 
 Map<String, Object?> simpleInput(int i) => {
-      'name': 'John Doe',
-      'email': 'john.doe$i@example.com',
-      'age': i % 2 == 0 ? 25 : '25',
-      'gender': 'male',
-      'password': 'secret-password',
-      'extra': 'stripped',
-    };
+  'name': 'John Doe',
+  'email': 'john.doe$i@example.com',
+  'age': i % 2 == 0 ? 25 : '25',
+  'gender': 'male',
+  'password': 'secret-password',
+  'extra': 'stripped',
+};
 
 // Every field is invalid: measures the errors path
 Map<String, Object?> invalidSimpleInput(int i) => {
-      'name': '',
-      'email': 'john.doe$i@',
-      'age': -1,
-      'gender': 'unknown',
-      'password': 'short',
-    };
+  'name': '',
+  'email': 'john.doe$i@',
+  'age': -1,
+  'gender': 'unknown',
+  'password': 'short',
+};
 
 final Map<String, Object?> nestedSchema = {
   'id': ['required', 'positive_integer'],
@@ -62,7 +62,7 @@ final Map<String, Object?> nestedSchema = {
               'city': ['required', 'string'],
               'zip': [
                 'required',
-                {'like': r'^\d{5}$'}
+                {'like': r'^\d{5}$'},
               ],
             },
           },
@@ -76,13 +76,13 @@ final Map<String, Object?> nestedSchema = {
 };
 
 Map<String, Object?> nestedInput(int i) => {
-      'id': i + 1,
-      'user': {
-        'name': 'John Doe',
-        'address': {'city': 'Kyiv', 'zip': '01001', 'extra': 'stripped'},
-      },
-      'tags': ['dart', 'livr', 'fast'],
-    };
+  'id': i + 1,
+  'user': {
+    'name': 'John Doe',
+    'address': {'city': 'Kyiv', 'zip': '01001', 'extra': 'stripped'},
+  },
+  'tags': ['dart', 'livr', 'fast'],
+};
 
 void main() => runBenchmarks();
 
@@ -92,8 +92,11 @@ void runBenchmarks() {
   final nestedValidator = Validator.untyped(nestedSchema);
   final simpleInputs = List.generate(1000, simpleInput, growable: false);
   final nestedInputs = List.generate(1000, nestedInput, growable: false);
-  final invalidInputs =
-      List.generate(1000, invalidSimpleInput, growable: false);
+  final invalidInputs = List.generate(
+    1000,
+    invalidSimpleInput,
+    growable: false,
+  );
 
   final cases = <String, bool Function(int)>{
     'simple, static': (i) => simpleValidator.validate(simpleInputs[i]).isValid,
@@ -115,8 +118,10 @@ void runBenchmarks() {
     if (!run(0)) throw StateError('$name: unexpected result');
     final ops = _opsPerSecond(run);
     final nsPerOp = (1e9 / ops).toStringAsFixed(0);
-    print('${name.padRight(16)} ${_format(ops).padLeft(12)} ops/sec'
-        '  ${nsPerOp.padLeft(5)} ns/op');
+    print(
+      '${name.padRight(16)} ${_format(ops).padLeft(12)} ops/sec'
+      '  ${nsPerOp.padLeft(5)} ns/op',
+    );
   }
 }
 

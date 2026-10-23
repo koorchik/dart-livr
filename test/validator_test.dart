@@ -21,7 +21,7 @@ void main() {
       final validator = Validator.untyped({
         'a': 'required',
         'b': {
-          'nested_object': {'c': 'positive_integer'}
+          'nested_object': {'c': 'positive_integer'},
         },
       });
       final Map<dynamic, dynamic> data = <dynamic, dynamic>{
@@ -42,14 +42,17 @@ void main() {
       expect(
         _output(validator.validate(jsonDecode('{"tags": [" a ", "b"]}'))),
         {
-          'tags': ['a', 'b']
+          'tags': ['a', 'b'],
         },
       );
     });
 
     test('missing fields stay missing, null fields stay null', () {
-      final validator =
-          Validator.untyped({'a': 'string', 'b': 'string', 'c': 'trim'});
+      final validator = Validator.untyped({
+        'a': 'string',
+        'b': 'string',
+        'c': 'trim',
+      });
       expect(_output(validator.validate({'a': null})), {'a': null});
     });
 
@@ -58,14 +61,17 @@ void main() {
       expect(validator.validateOrThrow({'a': 1}), {'a': 1});
       expect(
         () => validator.validateOrThrow({}),
-        throwsA(isA<LivrValidationException>()
-            .having((e) => e.errors, 'errors', {'a': 'REQUIRED'})),
+        throwsA(
+          isA<LivrValidationException>().having((e) => e.errors, 'errors', {
+            'a': 'REQUIRED',
+          }),
+        ),
       );
     });
 
     test('a validator is reusable', () {
       final validator = Validator.untyped({
-        'a': ['required', 'to_uc']
+        'a': ['required', 'to_uc'],
       });
       expect(_output(validator.validate({'a': 'x'})), {'a': 'X'});
       expect(_errors(validator.validate({})), {'a': 'REQUIRED'});
@@ -84,29 +90,31 @@ void main() {
     });
 
     test('integer rules return int', () {
-      final output = _output(validator.validate({
-        'integer': '-10',
-        'positive_integer': 10.0,
-      }));
+      final output = _output(
+        validator.validate({'integer': '-10', 'positive_integer': 10.0}),
+      );
       expect(output['integer'], isA<int>());
       expect(output['positive_integer'], isA<int>());
       expect(_output(validator.validate({'integer': '1e3'}))['integer'], 1000);
     });
 
     test('decimal rules return double', () {
-      final output = _output(validator.validate({
-        'decimal': '10',
-        'positive_decimal': 3,
-      }));
+      final output = _output(
+        validator.validate({'decimal': '10', 'positive_decimal': 3}),
+      );
       expect(output['decimal'], isA<double>());
       expect(output['positive_decimal'], isA<double>());
     });
 
     test('number rules return the number as parsed', () {
-      expect(_output(validator.validate({'min_number': '10'}))['min_number'],
-          isA<int>());
-      expect(_output(validator.validate({'min_number': '1.5'}))['min_number'],
-          1.5);
+      expect(
+        _output(validator.validate({'min_number': '10'}))['min_number'],
+        isA<int>(),
+      );
+      expect(
+        _output(validator.validate({'min_number': '1.5'}))['min_number'],
+        1.5,
+      );
     });
 
     test('numbers are converted to strings like in JavaScript', () {
@@ -115,13 +123,15 @@ void main() {
 
     test('booleans are not numbers', () {
       expect(
-        _errors(validator.validate({
-          'integer': true,
-          'positive_integer': true,
-          'decimal': false,
-          'positive_decimal': true,
-          'min_number': true,
-        })),
+        _errors(
+          validator.validate({
+            'integer': true,
+            'positive_integer': true,
+            'decimal': false,
+            'positive_decimal': true,
+            'min_number': true,
+          }),
+        ),
         {
           'integer': 'NOT_INTEGER',
           'positive_integer': 'NOT_POSITIVE_INTEGER',
@@ -134,10 +144,12 @@ void main() {
 
     test('non-finite numbers are a FORMAT_ERROR', () {
       expect(
-        _errors(validator.validate({
-          'integer': double.nan,
-          'decimal': double.infinity,
-        })),
+        _errors(
+          validator.validate({
+            'integer': double.nan,
+            'decimal': double.infinity,
+          }),
+        ),
         {'integer': 'FORMAT_ERROR', 'decimal': 'FORMAT_ERROR'},
       );
     });
@@ -150,7 +162,7 @@ void main() {
         'min': {'min_length': 3},
         'equal': {'length_equal': 3},
         'between': {
-          'length_between': [2, 3]
+          'length_between': [2, 3],
         },
       });
       expect(
@@ -163,12 +175,14 @@ void main() {
         isTrue,
       );
       expect(
-        _errors(validator.validate({
-          'max': '😀😀😀😀',
-          'min': '😀😀',
-          'equal': '😀😀',
-          'between': '😀',
-        })),
+        _errors(
+          validator.validate({
+            'max': '😀😀😀😀',
+            'min': '😀😀',
+            'equal': '😀😀',
+            'between': '😀',
+          }),
+        ),
         {
           'max': 'TOO_LONG',
           'min': 'TOO_SHORT',
@@ -184,10 +198,9 @@ void main() {
         'leave_only': {'leave_only': 'ё😀'},
       });
       expect(
-        _output(validator.validate({
-          'remove': 'ёлка😀!',
-          'leave_only': 'ёлка😀!',
-        })),
+        _output(
+          validator.validate({'remove': 'ёлка😀!', 'leave_only': 'ёлка😀!'}),
+        ),
         {'remove': 'лка!', 'leave_only': 'ё😀'},
       );
     });
@@ -196,15 +209,17 @@ void main() {
       final allowedValues = [for (var i = 0; i < 40; i++) i, '1'];
       final validator = Validator.untyped({
         'value': {
-          'one_of': [allowedValues]
+          'one_of': [allowedValues],
         },
       });
       expect(_output(validator.validate({'value': '39'})), {'value': 39});
       expect(_output(validator.validate({'value': 1})), {'value': 1});
-      expect(_errors(validator.validate({'value': 40})),
-          {'value': 'NOT_ALLOWED_VALUE'});
-      expect(_errors(validator.validate({'value': <String, Object?>{}})),
-          {'value': 'FORMAT_ERROR'});
+      expect(_errors(validator.validate({'value': 40})), {
+        'value': 'NOT_ALLOWED_VALUE',
+      });
+      expect(_errors(validator.validate({'value': <String, Object?>{}})), {
+        'value': 'FORMAT_ERROR',
+      });
     });
   });
 
@@ -212,7 +227,7 @@ void main() {
     test('defaults are copied for every output', () {
       final validator = Validator.untyped({
         'list': {
-          'default': [<Object?>[]]
+          'default': [<Object?>[]],
         },
       });
       final first = _output(validator.validate({}))['list'] as List<Object?>;
@@ -226,16 +241,13 @@ void main() {
         'tags': ['a', 'b'],
         'address': {'city': 'Kyiv'},
       };
-      final validator = Validator.untyped(
-        {
-          'name': 'to_uc',
-          'tags': {'list_of': 'string'},
-          'address': {
-            'nested_object': {'city': 'required'}
-          },
+      final validator = Validator.untyped({
+        'name': 'to_uc',
+        'tags': {'list_of': 'string'},
+        'address': {
+          'nested_object': {'city': 'required'},
         },
-        autoTrim: true,
-      );
+      }, autoTrim: true);
       final output = _output(validator.validate(input));
 
       expect(output, {
@@ -254,27 +266,29 @@ void main() {
       'code': 'required',
       'password': [
         'required',
-        {'min_length': 3}
+        {'min_length': 3},
       ],
       'password2': {'equal_to_field': 'password'},
       'list': {
-        'list_of': ['string']
+        'list_of': ['string'],
       },
       'address': {
         'nested_object': {
-          'street': {'min_length': 5}
-        }
+          'street': {'min_length': 5},
+        },
       },
     };
 
     test('trims strings before validation', () {
       final validator = Validator.untyped(schema, autoTrim: true);
       expect(
-        _errors(validator.validate({
-          'code': '  ',
-          'password': ' 12  ',
-          'address': {'street': '  hell '},
-        })),
+        _errors(
+          validator.validate({
+            'code': '  ',
+            'password': ' 12  ',
+            'address': {'street': '  hell '},
+          }),
+        ),
         {
           'code': 'REQUIRED',
           'password': 'TOO_SHORT',
@@ -282,13 +296,15 @@ void main() {
         },
       );
       expect(
-        _output(validator.validate({
-          'code': ' A ',
-          'password': ' 123  ',
-          'password2': '123 ',
-          'list': [' aaa ', ' bbb '],
-          'address': {'street': '  hello '},
-        })),
+        _output(
+          validator.validate({
+            'code': ' A ',
+            'password': ' 123  ',
+            'password2': '123 ',
+            'list': [' aaa ', ' bbb '],
+            'address': {'street': '  hello '},
+          }),
+        ),
         {
           'code': 'A',
           'password': '123',
@@ -302,11 +318,16 @@ void main() {
     test('defaultAutoTrim applies to validators created afterwards', () {
       addTearDown(() => Validator.defaultAutoTrim = false);
       Validator.defaultAutoTrim = true;
-      expect(_output(Validator.untyped({'a': 'string'}).validate({'a': ' x '})),
-          {'a': 'x'});
       expect(
-        _output(Validator.untyped({'a': 'string'}, autoTrim: false)
-            .validate({'a': ' x '})),
+        _output(Validator.untyped({'a': 'string'}).validate({'a': ' x '})),
+        {'a': 'x'},
+      );
+      expect(
+        _output(
+          Validator.untyped({
+            'a': 'string',
+          }, autoTrim: false).validate({'a': ' x '}),
+        ),
         {'a': ' x '},
       );
     });
@@ -316,50 +337,62 @@ void main() {
     void expectSchemaError(Map<String, Object?> schema, Matcher message) {
       expect(
         () => Validator.untyped(schema),
-        throwsA(isA<LivrSchemaException>()
-            .having((e) => e.message, 'message', message)),
+        throwsA(
+          isA<LivrSchemaException>().having(
+            (e) => e.message,
+            'message',
+            message,
+          ),
+        ),
       );
     }
 
     test('are thrown by the constructor', () {
-      expectSchemaError(
-          {'a': 'unknown'}, contains('Rule [unknown] not registered'));
+      expectSchemaError({
+        'a': 'unknown',
+      }, contains('Rule [unknown] not registered'));
       expectSchemaError({
         'a': {
-          'nested_object': {'b': 'unknown'}
-        }
+          'nested_object': {'b': 'unknown'},
+        },
       }, contains('[unknown]'));
-      expectSchemaError(
-          {'a': <String, Object?>{}}, contains('must have a name'));
+      expectSchemaError({
+        'a': <String, Object?>{},
+      }, contains('must have a name'));
       expectSchemaError({'a': 1}, contains('must be a name'));
       expectSchemaError({
-        'a': {'like': '('}
+        'a': {'like': '('},
       }, contains('invalid regular expression'));
       expectSchemaError({
-        'a': {'min_length': 'abc'}
+        'a': {'min_length': 'abc'},
       }, contains('expects a number'));
       expectSchemaError({
         'a': {
-          'length_between': [1]
-        }
+          'length_between': [1],
+        },
       }, contains('at least 2'));
       expectSchemaError({
-        'a': {'nested_object': 'x'}
+        'a': {'nested_object': 'x'},
       }, contains('expects a schema'));
       expectSchemaError({
         'a': {
-          'eq': <Object?>[<Object?>[]]
-        }
+          'eq': <Object?>[<Object?>[]],
+        },
       }, contains('primitive'));
     });
 
     test('aliases need a name', () {
-      expect(() => LivrAlias.fromJson({'rules': 'required'}),
-          throwsA(isA<LivrSchemaException>()));
       expect(
-          () => Validator.untyped({},
-              aliases: [const LivrAlias(name: '', rules: 'required')]),
-          throwsA(isA<LivrSchemaException>()));
+        () => LivrAlias.fromJson({'rules': 'required'}),
+        throwsA(isA<LivrSchemaException>()),
+      );
+      expect(
+        () => Validator.untyped(
+          {},
+          aliases: [const LivrAlias(name: '', rules: 'required')],
+        ),
+        throwsA(isA<LivrSchemaException>()),
+      );
     });
   });
 }

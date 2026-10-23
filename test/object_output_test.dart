@@ -6,16 +6,19 @@ import 'package:test/test.dart';
 Map<String, Object?> _output(
   Validator<Map<String, Object?>> validator,
   Object? input,
-) =>
-    (validator.validate(input) as ValidationSuccess<Map<String, Object?>>)
-        .output;
+) => (validator.validate(input) as ValidationSuccess<Map<String, Object?>>)
+    .output;
 
 void main() {
-  final small =
-      Validator.untyped({'a': 'string', 'b': 'string', 'c': 'string'});
+  final small = Validator.untyped({
+    'a': 'string',
+    'b': 'string',
+    'c': 'string',
+  });
   // More fields than a scan is used for: looked up through an index
-  final large =
-      Validator.untyped({for (var i = 0; i < 20; i++) 'f$i': 'string'});
+  final large = Validator.untyped({
+    for (var i = 0; i < 20; i++) 'f$i': 'string',
+  });
 
   for (final (name, validator, keys) in [
     ('small schema', small, ['a', 'b', 'c']),
@@ -82,14 +85,14 @@ void main() {
       'user': {
         'nested_object': {
           'name': 'required',
-          'tags': {'list_of': 'string'}
-        }
+          'tags': {'list_of': 'string'},
+        },
       },
     });
     final output = _output(validator, {
       'user': {
         'name': 'John',
-        'tags': [1, 2]
+        'tags': [1, 2],
       },
     });
 
@@ -97,7 +100,7 @@ void main() {
     expect(Map.of(output), {
       'user': {
         'name': 'John',
-        'tags': ['1', '2']
+        'tags': ['1', '2'],
       },
     });
     expect(output.toString(), '{user: {name: John, tags: [1, 2]}}');

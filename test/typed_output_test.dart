@@ -88,8 +88,13 @@ void main() {
       });
       expect(
         () => validator.validateOrThrow('not a map'),
-        throwsA(isA<LivrValidationException>()
-            .having((e) => e.errors, 'errors', 'FORMAT_ERROR')),
+        throwsA(
+          isA<LivrValidationException>().having(
+            (e) => e.errors,
+            'errors',
+            'FORMAT_ERROR',
+          ),
+        ),
       );
     });
   });
@@ -105,8 +110,10 @@ void main() {
 
     test('a conversion that does not match the schema throws', () {
       final wrongValidator = Validator({'age': 'string'}, User.fromJson);
-      expect(() => wrongValidator.validate({'age': 25}),
-          throwsA(isA<TypeError>()));
+      expect(
+        () => wrongValidator.validate({'age': 25}),
+        throwsA(isA<TypeError>()),
+      );
     });
   });
 
@@ -114,8 +121,9 @@ void main() {
     final validator = Validator.untyped(userSchema);
 
     test('return the output as a map', () {
-      final ValidationResult<Map<String, Object?>> result =
-          validator.validate(validInput);
+      final ValidationResult<Map<String, Object?>> result = validator.validate(
+        validInput,
+      );
       expect((result as ValidationSuccess<Map<String, Object?>>).output, {
         'email': 'john@example.com',
         'age': 25,

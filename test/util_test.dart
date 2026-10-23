@@ -66,7 +66,7 @@ void main() {
       'b': [
         1,
         'y',
-        {'c': 'z'}
+        {'c': 'z'},
       ],
     };
     expect(trimDeep(data), same(data));
@@ -84,7 +84,7 @@ void main() {
       'a': 'x',
       'b': [
         'y',
-        {'c': 'z'}
+        {'c': 'z'},
       ],
     });
     expect((trimmed['b'] as List<Object?>)[1], same(nested));

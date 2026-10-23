@@ -3,10 +3,8 @@
 /// [allValues] is the object the value belongs to, so rules like
 /// `equal_to_field` can read other fields. It is the input as given, never
 /// modified.
-typedef LivrRule = RuleResult Function(
-  Object? value,
-  Map<Object?, Object?> allValues,
-);
+typedef LivrRule =
+    RuleResult Function(Object? value, Map<Object?, Object?> allValues);
 
 /// Builds a [LivrRule] from the arguments in the schema.
 ///
@@ -15,10 +13,8 @@ typedef LivrRule = RuleResult Function(
 /// the expensive work once (parses arguments, compiles regular expressions,
 /// compiles nested rules through [context]) and returns a rule that only
 /// checks values.
-typedef RuleBuilder = LivrRule Function(
-  List<Object?> args,
-  RuleContext context,
-);
+typedef RuleBuilder =
+    LivrRule Function(List<Object?> args, RuleContext context);
 
 /// What a rule returns: the value is valid and unchanged ([valid]), valid
 /// with a new value ([RuleResult.value]), or invalid ([RuleResult.error]).

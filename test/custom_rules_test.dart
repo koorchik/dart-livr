@@ -44,14 +44,15 @@ void main() {
       {
         'password': [
           'required',
-          {'strong_password': 8}
-        ]
+          {'strong_password': 8},
+        ],
       },
       rules: {'strong_password': strongPassword},
     );
     expect(validator.validate({'password': 'secret123'}).isValid, isTrue);
-    expect(_errors(validator.validate({'password': 'secret'})),
-        {'password': 'WEAK_PASSWORD'});
+    expect(_errors(validator.validate({'password': 'secret'})), {
+      'password': 'WEAK_PASSWORD',
+    });
     expect(_errors(validator.validate({})), {'password': 'REQUIRED'});
   });
 
@@ -59,7 +60,7 @@ void main() {
     final validator = Validator.untyped(
       {
         'users': {
-          'list_of_objects': {'password': 'strongPassword'}
+          'list_of_objects': {'password': 'strongPassword'},
         },
         'admin': 'admin_password',
       },
@@ -75,13 +76,15 @@ void main() {
       ],
     );
     expect(
-      _errors(validator.validate({
-        'users': [
-          {'password': 'secret123'},
-          {'password': 'secret'},
-        ],
-        'admin': 'x',
-      })),
+      _errors(
+        validator.validate({
+          'users': [
+            {'password': 'secret123'},
+            {'password': 'secret'},
+          ],
+          'admin': 'x',
+        }),
+      ),
       {
         'users': [
           null,
@@ -96,23 +99,29 @@ void main() {
     final validator = Validator.untyped(
       {
         'tags': {
-          'list_of_tags': ['required', 'to_lc']
-        }
+          'list_of_tags': ['required', 'to_lc'],
+        },
       },
       rules: {'list_of_tags': listOfTags},
     );
     expect(
-        _output(validator.validate({
-          'tags': ['A', 'b']
-        })),
-        {
-          'tags': ['a', 'b'],
-        });
+      _output(
+        validator.validate({
+          'tags': ['A', 'b'],
+        }),
+      ),
+      {
+        'tags': ['a', 'b'],
+      },
+    );
     expect(
-        _errors(validator.validate({
-          'tags': ['A', '']
-        })),
-        {'tags': 'REQUIRED'});
+      _errors(
+        validator.validate({
+          'tags': ['A', ''],
+        }),
+      ),
+      {'tags': 'REQUIRED'},
+    );
   });
 
   test('a recursive rule can use its own validator', () {
@@ -124,38 +133,40 @@ void main() {
       },
       rules: {
         'tree_list': (args, context) => (value, allValues) {
-              if (isNoValue(value)) return RuleResult.valid;
-              if (value is! List<Object?>) {
-                return RuleResult.error('FORMAT_ERROR');
-              }
+          if (isNoValue(value)) return RuleResult.valid;
+          if (value is! List<Object?>) {
+            return RuleResult.error('FORMAT_ERROR');
+          }
 
-              final results = <Object?>[];
-              for (final child in value) {
-                switch (treeValidator.validate(child)) {
-                  case ValidationSuccess(:final output):
-                    results.add(output);
-                  case ValidationFailure(:final errors):
-                    return RuleResult.error(errors);
-                }
-              }
-              return RuleResult.value(results);
-            },
+          final results = <Object?>[];
+          for (final child in value) {
+            switch (treeValidator.validate(child)) {
+              case ValidationSuccess(:final output):
+                results.add(output);
+              case ValidationFailure(:final errors):
+                return RuleResult.error(errors);
+            }
+          }
+          return RuleResult.value(results);
+        },
       },
     );
 
     expect(
-      _output(treeValidator.validate({
-        'name': 'root',
-        'children': [
-          {'name': 'a'},
-          {
-            'name': 'b',
-            'children': [
-              {'name': 'c'},
-            ],
-          },
-        ],
-      })),
+      _output(
+        treeValidator.validate({
+          'name': 'root',
+          'children': [
+            {'name': 'a'},
+            {
+              'name': 'b',
+              'children': [
+                {'name': 'c'},
+              ],
+            },
+          ],
+        }),
+      ),
       {
         'name': 'ROOT',
         'children': [
@@ -175,10 +186,10 @@ void main() {
     final validator = Validator.untyped(
       {'b': 'greater_than_a'},
       rules: {
-        'greater_than_a': (args, context) => (value, allValues) =>
-            (value as num) > (allValues['a'] as num)
-                ? RuleResult.valid
-                : RuleResult.error('TOO_LOW'),
+        'greater_than_a': (args, context) =>
+            (value, allValues) => (value as num) > (allValues['a'] as num)
+            ? RuleResult.valid
+            : RuleResult.error('TOO_LOW'),
       },
     );
     expect(validator.validate({'a': 1, 'b': 2}).isValid, isTrue);
@@ -190,21 +201,23 @@ void main() {
       {
         'groups': {
           'list_of_tags': {
-            'nested_object': {'name': 'required'}
-          }
-        }
+            'nested_object': {'name': 'required'},
+          },
+        },
       },
       rules: {'list_of_tags': listOfTags},
     );
     expect(
-      _errors(validator.validate({
-        'groups': [
-          {'name': 'a'},
-          {'name': ''},
-        ],
-      })),
+      _errors(
+        validator.validate({
+          'groups': [
+            {'name': 'a'},
+            {'name': ''},
+          ],
+        }),
+      ),
       {
-        'groups': {'name': 'REQUIRED'}
+        'groups': {'name': 'REQUIRED'},
       },
     );
   });
@@ -212,22 +225,24 @@ void main() {
   group('default rules', () {
     test('registerDefaultRules and registerAliasedDefaultRule', () {
       Validator.registerDefaultRules({'strong_password': strongPassword});
-      Validator.registerAliasedDefaultRule(const LivrAlias(
-        name: 'adult_age',
-        rules: [
-          'positive_integer',
-          {'min_number': 18}
-        ],
-      ));
+      Validator.registerAliasedDefaultRule(
+        const LivrAlias(
+          name: 'adult_age',
+          rules: [
+            'positive_integer',
+            {'min_number': 18},
+          ],
+        ),
+      );
 
       final validator = Validator.untyped({
         'password': {'strongPassword': 8},
         'age': 'adultAge',
       });
-      expect(
-        _errors(validator.validate({'password': 'x', 'age': 10})),
-        {'password': 'WEAK_PASSWORD', 'age': 'TOO_LOW'},
-      );
+      expect(_errors(validator.validate({'password': 'x', 'age': 10})), {
+        'password': 'WEAK_PASSWORD',
+        'age': 'TOO_LOW',
+      });
       expect(Validator.defaultRules, contains('strong_password'));
     });
 
@@ -240,7 +255,7 @@ void main() {
         {'a': 'my_rule'},
         rules: {
           'my_rule': (args, context) =>
-              (value, allValues) => RuleResult.error('OWN')
+              (value, allValues) => RuleResult.error('OWN'),
         },
       );
       expect(_errors(validator.validate({'a': 1})), {'a': 'OWN'});
@@ -248,12 +263,13 @@ void main() {
 
     test('a default rule can override a built-in one', () {
       Validator.registerDefaultRules({
-        'email': (args, context) => (value, allValues) => RuleResult.valid,
+        'email': (args, context) =>
+            (value, allValues) => RuleResult.valid,
       });
       expect(
-          Validator.untyped({'a': 'email'})
-              .validate({'a': 'not email'}).isValid,
-          isTrue);
+        Validator.untyped({'a': 'email'}).validate({'a': 'not email'}).isValid,
+        isTrue,
+      );
     });
   });
 }

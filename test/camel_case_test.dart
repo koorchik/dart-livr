@@ -16,25 +16,26 @@ void main() {
       'age': [
         'required',
         'positiveInteger',
-        {'minNumber': 18}
+        {'minNumber': 18},
       ],
       'tags': {
-        'list_of': {'max_length': 3}
+        'list_of': {'max_length': 3},
       },
     });
 
     expect(
       validator.validate({
         'age': '20',
-        'tags': ['a']
+        'tags': ['a'],
       }),
       isA<ValidationSuccess<Map<String, Object?>>>(),
     );
     expect(
       (validator.validate({
-        'age': '10',
-        'tags': ['abcd']
-      }) as ValidationFailure)
+                'age': '10',
+                'tags': ['abcd'],
+              })
+              as ValidationFailure)
           .errors,
       {
         'age': 'TOO_LOW',
@@ -56,11 +57,12 @@ void main() {
       {'a': 'minLength'},
       rules: {
         'min_length': (args, context) =>
-            (value, allValues) => RuleResult.error('MY_ERROR')
+            (value, allValues) => RuleResult.error('MY_ERROR'),
       },
     );
-    expect((validator.validate({'a': 'x'}) as ValidationFailure).errors,
-        {'a': 'MY_ERROR'});
+    expect((validator.validate({'a': 'x'}) as ValidationFailure).errors, {
+      'a': 'MY_ERROR',
+    });
   });
 
   test('a rule registered under the camelCase name wins', () {
@@ -74,8 +76,9 @@ void main() {
       },
     );
     expect(
-        (validator.validate({'a': 'x', 'b': 'x'}) as ValidationFailure).errors,
-        {'a': 'UNDERSCORE', 'b': 'CAMEL'});
+      (validator.validate({'a': 'x', 'b': 'x'}) as ValidationFailure).errors,
+      {'a': 'UNDERSCORE', 'b': 'CAMEL'},
+    );
   });
 
   test('a camelCase rule has no underscore name', () {
@@ -84,7 +87,7 @@ void main() {
         {'a': 'strong_password'},
         rules: {
           'strongPassword': (args, context) =>
-              (value, allValues) => RuleResult.valid
+              (value, allValues) => RuleResult.valid,
         },
       ),
       throwsA(isA<LivrSchemaException>()),
@@ -99,14 +102,16 @@ void main() {
           name: 'adult_age',
           rules: [
             'positive_integer',
-            {'min_number': 18}
+            {'min_number': 18},
           ],
           error: 'WRONG_AGE',
         ),
       ],
     );
-    expect((validator.validate({'a': 1, 'b': 2}) as ValidationFailure).errors,
-        {'a': 'WRONG_AGE', 'b': 'WRONG_AGE'});
+    expect((validator.validate({'a': 1, 'b': 2}) as ValidationFailure).errors, {
+      'a': 'WRONG_AGE',
+      'b': 'WRONG_AGE',
+    });
   });
 
   // The whole test suite once more, with every rule name in camelCase
@@ -115,7 +120,7 @@ void main() {
       'positive',
       'negative',
       'aliases_positive',
-      'aliases_negative'
+      'aliases_negative',
     ]) {
       for (final suiteCase in loadSuite(suite)) {
         test('$suite ${suiteCase.name}', () {
@@ -133,8 +138,10 @@ void main() {
           final result = validator.validate(suiteCase.input);
 
           if (suite.endsWith('positive')) {
-            expect((result as ValidationSuccess<Map<String, Object?>>).output,
-                suiteCase.expected);
+            expect(
+              (result as ValidationSuccess<Map<String, Object?>>).output,
+              suiteCase.expected,
+            );
           } else {
             expect((result as ValidationFailure).errors, suiteCase.expected);
           }
