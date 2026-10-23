@@ -1,0 +1,47 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The lowest supported SDK (environment.sdk in pubspec.yaml) and the latest one
+        sdk: ['3.8.0', stable]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ matrix.sdk }}
+
+      # For the tests on dart2js
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - run: dart pub get
+
+      # Lints of infos change with analyzer versions: only the latest SDK
+      # fails on them
+      - name: Analyze
+        run: dart analyze ${{ matrix.sdk == 'stable' && '--fatal-infos' || '' }}
+
+      # The output of the formatter depends on its version
+      - name: Check formatting
+        if: matrix.sdk == 'stable'
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Test on the VM
+        run: dart test
+
+      - name: Test on dart2js (Node.js)
+        run: dart test -p node

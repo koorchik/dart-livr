@@ -185,8 +185,8 @@ dart compile exe benchmark/benchmark.dart -o build/benchmark && build/benchmark
 ## Development
 
 ```sh
-dart test                          # unit tests and the LIVR test suite
-dart test -p node test/validator_test.dart   # unit tests on the web (dart2js), needs Node.js
+dart test              # unit tests and the LIVR test suite
+dart test -p node      # the tests on the web (dart2js), needs Node.js
 dart analyze --fatal-infos && dart format --set-exit-if-changed .
 ```
 

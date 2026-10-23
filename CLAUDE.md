@@ -11,7 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 dart test                                    # all tests, the LIVR test suite included
 dart test test/test_suite_test.dart          # the test suite only
-dart test -p node test/validator_test.dart   # a test on dart2js (Node.js); test files that read test/test_suite need dart:io
+dart test -p node                            # the tests on dart2js (Node.js); files that read test/test_suite are @TestOn('vm')
 dart analyze --fatal-infos && dart format --set-exit-if-changed .
 dart compile exe benchmark/benchmark.dart -o build/benchmark && build/benchmark   # AOT benchmark
 dart run benchmark/benchmark.dart                                                 # JIT benchmark
@@ -49,6 +49,10 @@ Numeric rules reject booleans; integer rules return `int`, decimal rules `double
 - `test_suite/` - a copy of the LIVR test suite, not formatted or analyzed; `test_suite_test.dart` runs it, `camel_case_test.dart` runs it again with camelCase rule names
 - `email_test.dart` - the `email` rule is a scanner for the regular expression of the JavaScript implementation; the test compares both on the suite, edge cases and random strings
 - Tests that change the global registry or `defaultAutoTrim` restore it or live in their own file (every test file runs in its own isolate)
+
+## CI
+
+`.github/workflows/test.yml` runs analyze, the format check, the VM tests and the Node.js tests on the lowest supported SDK (`environment.sdk` in `pubspec.yaml`, keep them in sync) and on the latest stable one. The lowest SDK is the lowest one the dev dependencies allow (`lints ^6` needs 3.8).
 
 ## Code style
 

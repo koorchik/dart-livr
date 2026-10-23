@@ -4,6 +4,7 @@ description: >-
   Validation Rules (LIVR) specification. Rules are plain data.
 version: 0.1.0
 homepage: https://livr-spec.org
+repository: https://github.com/koorchik/dart-livr
 topics:
   - validation
   - validator

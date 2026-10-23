@@ -1,3 +1,7 @@
+// Reads the test suite from test/test_suite with dart:io
+@TestOn('vm')
+library;
+
 import 'dart:math';
 
 import 'package:livr/livr.dart';
