@@ -21,8 +21,9 @@ LivrRule listOf(List<Object?> args, RuleContext context) {
 
     for (var i = 0; i < length; i++) {
       final item = value[i];
-      // Rules of an item see it as the only field of the data
-      final result = validateItem(item, SingleFieldMap('field', item));
+      // An item has no object of its own: equal_to_field and references
+      // in its rules see no fields
+      final result = validateItem(item, noFields);
 
       if (result.isError) {
         (errors ??= List<Object?>.filled(length, null, growable: true))[i] =

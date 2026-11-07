@@ -7,6 +7,7 @@ analyzer:
     strict-raw-types: true
   exclude:
     - test/test_suite/**
+    - test/test_suite_2.5/**
 
 linter:
   rules:

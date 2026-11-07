@@ -2,12 +2,12 @@
 
 [![pub package](https://img.shields.io/pub/v/livr.svg)](https://pub.dev/packages/livr) [![Test](https://github.com/koorchik/dart-livr/actions/workflows/test.yml/badge.svg)](https://github.com/koorchik/dart-livr/actions/workflows/test.yml)
 
-Fast, zero-dependency Dart validator for the [LIVR specification](https://livr-spec.org) (Language Independent Validation Rules, v2.0). Rules are plain data: store them in JSON, send them over the wire and validate the same way, with the same error codes, in Dart, JavaScript, Perl, Python, Go and [other languages](https://livr-spec.org/introduction/implementations.html).
+Fast, zero-dependency Dart validator for the [LIVR specification](https://livr-spec.org) (Language Independent Validation Rules, v2.0, and the rules of the [2.5 draft](#livr-25-draft)). Rules are plain data: store them in JSON, send them over the wire and validate the same way, with the same error codes, in Dart, JavaScript, Perl, Python, Go and [other languages](https://livr-spec.org/introduction/implementations.html).
 
 - Returns only the fields that have rules, everything else is dropped.
 - Reports errors for all fields at once, as codes shaped like the data.
 - Cleans the data on the way: trims strings, converts `"25"` to `25`, sets defaults.
-- Passes the whole LIVR test suite, on the Dart VM, AOT and the web.
+- Passes the whole LIVR test suite and the suite of the 2.5 draft, on the Dart VM, AOT and the web.
 
 ## Install
 
@@ -53,6 +53,7 @@ switch (signUpValidator.validate(input)) {
 - `validateOrThrow()` returns the output or throws `LivrValidationException`.
 - Rule names work as in the specification (`min_length`) and in camelCase (`minLength`). Field names are data and are never converted.
 - `autoTrim: true` (or `Validator.defaultAutoTrim = true`) trims all strings of the input before validation.
+- `now: () => DateTime.utc(2026, 10, 18)` fixes the current time of the bounds `today`, `yesterday` and `tomorrow` of `iso_date` and `iso_datetime`, for tests. Without it, the system time is used; the days are UTC days.
 
 ## Types of the output
 
@@ -62,10 +63,12 @@ Nothing checks that the type matches the schema, so write the types the rules re
 |---|---|
 | `integer`, `positive_integer` | `int` |
 | `decimal`, `positive_decimal` | `double` |
-| `min_number`, `max_number`, `number_between` | `num` |
-| string rules, `email`, `url`, `iso_date`, modifiers | `String` |
-| `nested_object`, `variable_object` | `Map<String, Object?>`, or an extension type over it |
-| `list_of`, `list_of_objects`, `list_of_different_objects` | `List<Object?>` |
+| `min_number`, `max_number`, `number_between`, `max_decimals` | `num` |
+| `boolean` | `bool` |
+| string rules, `email`, `url`, `iso_date`, `iso_datetime`, `iso_time`, format and checksum rules, modifiers | `String` |
+| `nested_object`, `variable_object`, `values` | `Map<String, Object?>`, or an extension type over it |
+| `list_of`, `list_of_objects`, `list_of_different_objects`, `split` | `List<Object?>` |
+| `any`, `when` | the type of the value, or of the rules of the branch |
 
 A field without `required` or `default` can be missing, so its type is nullable. A mismatch is a `TypeError` when the field is read, or in `fromJson`.
 
@@ -111,7 +114,8 @@ final accountValidator = Validator(
 
 - `Validator.registerDefaultRules({...})` registers rules for all validators created afterwards.
 - Do the expensive work in the builder (parse arguments, compile regular expressions), so the rule only checks values.
-- `allValues` is the object the value belongs to, for rules that compare fields.
+- `allValues` is the object the value belongs to, for rules that compare fields. `parseReference()` reads a field or a path (`'address/country'`) in it, like `required_if` and `when`.
+- `context.clock` is the clock of the validator (the `now` argument), for rules that depend on the current time.
 - `package:livr/util.dart` has the helpers the built-in rules use: `isNoValue`, `isPrimitive`, `livrToString`, `parseNumber`, argument readers.
 - Metarules compile nested rules through the `RuleContext`: `context.compileField(rules)` and `context.compileObject(schema)` return rules that validate a value or an object. All built-in metarules are written this way.
 
@@ -151,6 +155,24 @@ final personValidator = Validator(
 | Metarules | `nested_object`, `variable_object`, `list_of`, `list_of_objects`, `list_of_different_objects`, `or` |
 
 See [livr-spec.org](https://livr-spec.org/validation-rules.html) for every rule and its error codes.
+
+### LIVR 2.5 draft
+
+The rules of the LIVR 2.5 draft (`drafts/v2.5.md` in the [LIVR repository](https://github.com/koorchik/LIVR)), which can still change.
+
+| Group | Rules |
+|---|---|
+| Types and numbers | `boolean`, `not_one_of`, `max_decimals` |
+| Strings | `digits`, `starts_with`, `ends_with`, `contains` |
+| Dates and times | `iso_date` with `min` and `max`, `iso_datetime`, `iso_time` |
+| Presence | `required_if` |
+| Metarules | `when`, `values`, `keys`, `any` |
+| Lists | `list_length`, `unique` |
+| Modifiers | `split` |
+| Formats | `uuid`, `ip`, `cidr`, `hostname`, `base64`, `hex`, `digest`, `mongo_id`, `hex_color`, `mac`, `e164`, `semver`, `jwt` |
+| Checksums | `luhn`, `credit_card`, `iban` |
+
+The draft also fixes three details of 2.0: aliases and `or` are transparent, so `equal_to_field` in them compares with a sibling of the field (in an element of `list_of` the other field is missing); `like` matches `^` and `$` only at the start and the end of the value, as Dart regular expressions always did; the first argument of `iso_date`, if any, must be an options object, so `{"iso_date": "today"}`, which 2.0 ignored, is a schema error. `{"rule": null}` is one `null` argument, and no 2.5 rule takes it: `{"boolean": null}` is a schema error. `{"iso_date": null}` stays the plain `iso_date`, as in 2.0, and the 2.0 rules and custom rules still get `null` as one argument, so `{"default": null}` sets `null` and a custom builder gets `[null]`.
 
 ## Dart specifics
 
@@ -192,4 +214,4 @@ dart test -p node      # the tests on the web (dart2js), needs Node.js
 dart analyze --fatal-infos && dart format --set-exit-if-changed .
 ```
 
-`test/test_suite` is a copy of the LIVR [test suite](https://livr-spec.org/how-to-contribute/test-suite.html); the page has the command that replaces it with the current one.
+`test/test_suite` and `test/test_suite_2.5` are copies of the LIVR [test suite](https://livr-spec.org/how-to-contribute/test-suite.html); the page has the command that replaces it with the current one.

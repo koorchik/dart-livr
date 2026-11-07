@@ -15,4 +15,6 @@ export 'src/util.dart'
         ruleArg,
         numberArg,
         stringArg,
+        parseReference,
+        FieldReference,
         SingleFieldMap;

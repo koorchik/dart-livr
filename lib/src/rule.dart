@@ -2,7 +2,9 @@
 ///
 /// [allValues] is the object the value belongs to, so rules like
 /// `equal_to_field` can read other fields. It is the input as given, never
-/// modified.
+/// modified. Aliases and `or` pass it on to their rules; the elements of
+/// `list_of`, the values of `values` and the keys of `keys` belong to no
+/// object, their rules get an empty map.
 typedef LivrRule =
     RuleResult Function(Object? value, Map<Object?, Object?> allValues);
 
@@ -94,6 +96,25 @@ abstract interface class RuleContext {
   /// the fields, or the validated object as the new value. Empty values are
   /// not skipped: that is up to the caller.
   LivrRule compileObject(Map<Object?, Object?> schema);
+}
+
+/// The current time, for rules like `iso_date` with the bound `today`.
+extension RuleContextClock on RuleContext {
+  /// The clock of the validator being built: the `now` argument of the
+  /// validator, or the system time. Call it when a value is validated, not
+  /// in the builder: a validator can live longer than a day.
+  DateTime Function() get clock {
+    final context = this;
+    return context is ClockRuleContext ? context.clock : DateTime.now;
+  }
+}
+
+/// A [RuleContext] with a clock, implemented by the compiler. Not exported:
+/// [RuleContextClock.clock] reads it, and other contexts get the system
+/// time, so implementations of [RuleContext] outside the package keep
+/// working.
+abstract interface class ClockRuleContext implements RuleContext {
+  DateTime Function() get clock;
 }
 
 /// Thrown when a schema, a rule argument or an alias is invalid: an unknown

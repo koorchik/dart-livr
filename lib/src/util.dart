@@ -222,8 +222,138 @@ String stringArg(List<Object?> args, int index, String ruleName) {
   throw LivrSchemaException('Rule [$ruleName] expects a string, got [$arg]');
 }
 
-/// An unmodifiable map with one entry: the data of a value validated on its
-/// own (list items, `or` and aliases), cheaper than a map literal.
+/// Reads the field that a reference points to (LIVR 2.5, `required_if` and
+/// `when`) in the object a rule gets as `allValues`. Returns the input value,
+/// or `null` when the field is missing.
+typedef FieldReference = Object? Function(Map<Object?, Object?> data);
+
+/// Parses a reference to another field for a rule builder: `'name'`, a field
+/// of the object, or `'a/b/0'`, a path down from it through objects and
+/// lists, where `~1` stands for `/` and `~0` for `~`. Throws
+/// [LivrSchemaException] for a reference that is not a string, is empty,
+/// has an empty segment (a leading or a trailing `/` too) or a wrong escape.
+///
+/// On a list, a segment is an index only in the form `0` or `[1-9][0-9]*`.
+/// A segment that is missing, or a value on the way that is not an object
+/// (or a list for an index), makes the referenced value missing.
+FieldReference parseReference(Object? reference, String ruleName) {
+  if (reference is! String || reference.isEmpty) {
+    throw LivrSchemaException(
+      'Rule [$ruleName] expects a reference to a field, got [$reference]',
+    );
+  }
+
+  // The common case: a field of the object
+  if (!reference.contains('/') && !reference.contains('~')) {
+    return (data) => data[reference];
+  }
+
+  final segments = reference.split('/');
+  final keys = List<String>.filled(segments.length, '');
+  final indexes = List<int>.filled(segments.length, -1);
+  for (var i = 0; i < segments.length; i++) {
+    final key = _unescapeSegment(segments[i]);
+    if (key == null) {
+      throw LivrSchemaException(
+        'Rule [$ruleName] got a wrong reference [$reference]: an empty '
+        'segment or an escape other than ~0 and ~1',
+      );
+    }
+    keys[i] = key;
+    indexes[i] = _listIndex(key);
+  }
+
+  return (data) {
+    Object? value = data;
+    for (var i = 0; i < keys.length; i++) {
+      if (value is Map<Object?, Object?>) {
+        value = value[keys[i]];
+      } else if (value is List<Object?>) {
+        final index = indexes[i];
+        if (index < 0 || index >= value.length) return null;
+        value = value[index];
+      } else {
+        return null;
+      }
+    }
+    return value;
+  };
+}
+
+// The segment with ~1 as "/" and ~0 as "~", null for an empty segment or a
+// wrong escape
+String? _unescapeSegment(String segment) {
+  if (segment.isEmpty) return null;
+  if (!segment.contains('~')) return segment;
+
+  final buffer = StringBuffer();
+  for (var i = 0; i < segment.length; i++) {
+    final char = segment.codeUnitAt(i);
+    if (char != 0x7E) {
+      // Not "~"
+      buffer.writeCharCode(char);
+      continue;
+    }
+    final next = i + 1 < segment.length ? segment.codeUnitAt(i + 1) : -1;
+    if (next == 0x30) {
+      buffer.write('~');
+    } else if (next == 0x31) {
+      buffer.write('/');
+    } else {
+      return null;
+    }
+    i++;
+  }
+  return buffer.toString();
+}
+
+// The list index of a segment "0" or [1-9][0-9]*, -1 for other segments.
+// Longer numbers are no index of any list
+int _listIndex(String segment) {
+  final length = segment.length;
+  if (length > 15 || (length > 1 && segment.codeUnitAt(0) == 0x30)) return -1;
+
+  var index = 0;
+  for (var i = 0; i < length; i++) {
+    final digit = segment.codeUnitAt(i) - 0x30;
+    if (digit < 0 || digit > 9) return -1;
+    index = index * 10 + digit;
+  }
+  return index;
+}
+
+/// The object of values that belong to no object (elements of `list_of`,
+/// values of `values`, keys of `keys`): every field is missing.
+///
+/// A class of its own instead of `const {}`: with the constant map class
+/// among the maps that rules get, AOT-compiled validation of every schema is
+/// a few percent slower.
+const Map<Object?, Object?> noFields = _NoFields();
+
+final class _NoFields extends UnmodifiableMapBase<Object?, Object?> {
+  const _NoFields();
+
+  @override
+  Object? operator [](Object? key) => null;
+
+  @override
+  bool containsKey(Object? key) => false;
+
+  @override
+  Iterable<Object?> get keys => const [];
+
+  @override
+  int get length => 0;
+
+  @override
+  bool get isEmpty => true;
+
+  @override
+  bool get isNotEmpty => false;
+}
+
+/// An unmodifiable map with one entry, cheaper than a map literal: for
+/// custom rules that validate a value on its own with a field around it.
 final class SingleFieldMap extends UnmodifiableMapBase<Object?, Object?> {
   SingleFieldMap(this._key, this._value);
 

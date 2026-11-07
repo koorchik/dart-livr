@@ -1,5 +1,4 @@
 import '../../rule.dart';
-import '../../util.dart';
 
 /// `or`: applies the sets of rules one after another until one of them
 /// succeeds: `{or: ['email', 'positive_integer']}`. When all of them fail,
@@ -12,12 +11,12 @@ LivrRule or(List<Object?> args, RuleContext context) {
   );
 
   return (value, allValues) {
-    // Rules of a set see the value as the only field of the data
-    final data = SingleFieldMap('field', value);
     var result = RuleResult.valid;
 
+    // The sets are transparent: their rules see the object of the field, so
+    // equal_to_field and references compare with its siblings
     for (var i = 0; i < ruleSets.length; i++) {
-      result = ruleSets[i](value, data);
+      result = ruleSets[i](value, allValues);
       if (!result.isError) return result;
     }
 

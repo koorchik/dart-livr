@@ -18,18 +18,18 @@ void addRule(Map<String, RuleBuilder> registry, String name, RuleBuilder rule) {
 
 /// Builds the rule of an alias: its rules run as one field, and [error], if
 /// set, replaces their errors.
+///
+/// An alias is transparent: its rules see the object of the field that uses
+/// it, so `equal_to_field` and references compare with the siblings of the
+/// field (LIVR 2.5).
 RuleBuilder buildAliasedRule(Object? rules, String? error) {
   return (args, context) {
     final validateValue = context.compileField(rules);
-    if (error == null) {
-      // Rules of an alias see the value as the only field of the data
-      return (value, allValues) =>
-          validateValue(value, SingleFieldMap('value', value));
-    }
+    if (error == null) return validateValue;
 
     final aliasError = RuleResult.error(error);
     return (value, allValues) {
-      final result = validateValue(value, SingleFieldMap('value', value));
+      final result = validateValue(value, allValues);
       return result.isError ? aliasError : result;
     };
   };
@@ -40,12 +40,15 @@ const List<Object?> _noArgs = [];
 /// Compiles schemas with the rules of one validator. Nested schemas of
 /// metarules and aliases are compiled with the same registry, it is never
 /// copied.
-final class Compiler implements RuleContext {
-  Compiler(this._rules, this._defaultRules);
+final class Compiler implements ClockRuleContext {
+  Compiler(this._rules, this._defaultRules, this.clock);
 
   // Rules of the validator (registered for it, and its aliases), or null
   final Map<String, RuleBuilder>? _rules;
   final Map<String, RuleBuilder> _defaultRules;
+
+  @override
+  final DateTime Function() clock;
 
   CompiledObject compileSchema(Map<Object?, Object?> schema) {
     // Lists of the final size: fields with an empty list of rules are rare

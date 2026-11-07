@@ -157,14 +157,21 @@ final class Validator<T> {
   /// [rules] and [aliases] are registered for this validator only and take
   /// precedence over the default rules. With [autoTrim], all strings of the
   /// input are trimmed before validation; it defaults to [defaultAutoTrim].
+  ///
+  /// [now] is the clock of the bounds `today`, `yesterday` and `tomorrow` of
+  /// `iso_date` and `iso_datetime`, for tests:
+  /// `now: () => DateTime.utc(2026, 10, 18, 12)`. It is called whenever a
+  /// rule needs the current time. Without it, the system time is used. The
+  /// days are always UTC days.
   factory Validator(
     Map<Object?, Object?> schema,
     T Function(Map<String, Object?> output) convert, {
     Map<String, RuleBuilder>? rules,
     Iterable<LivrAlias>? aliases,
     bool? autoTrim,
+    DateTime Function()? now,
   }) => Validator._(
-    _compile(schema, rules, aliases),
+    _compile(schema, rules, aliases, now),
     autoTrim ?? defaultAutoTrim,
     convert,
   );
@@ -172,14 +179,16 @@ final class Validator<T> {
   /// Creates a validator for [schema] that returns the output as a `Map`,
   /// without a type: for schemas built at run time (loaded from a database,
   /// different for every customer) and for services that only check data.
-  /// Prefer [Validator.new] with a type when the schema is known.
+  /// Prefer [Validator.new] with a type when the schema is known. The
+  /// arguments are the same as in [Validator.new].
   static Validator<Map<String, Object?>> untyped(
     Map<Object?, Object?> schema, {
     Map<String, RuleBuilder>? rules,
     Iterable<LivrAlias>? aliases,
     bool? autoTrim,
+    DateTime Function()? now,
   }) => Validator._(
-    _compile(schema, rules, aliases),
+    _compile(schema, rules, aliases, now),
     autoTrim ?? defaultAutoTrim,
     null,
   );
@@ -190,6 +199,7 @@ final class Validator<T> {
     Map<Object?, Object?> schema,
     Map<String, RuleBuilder>? rules,
     Iterable<LivrAlias>? aliases,
+    DateTime Function()? now,
   ) {
     Map<String, RuleBuilder>? validatorRules;
 
@@ -201,7 +211,11 @@ final class Validator<T> {
       }
     }
 
-    return Compiler(validatorRules, _defaultRules).compileSchema(schema);
+    return Compiler(
+      validatorRules,
+      _defaultRules,
+      now ?? DateTime.now,
+    ).compileSchema(schema);
   }
 
   final CompiledObject _schema;

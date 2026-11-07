@@ -1,22 +1,48 @@
 import '../rule.dart';
+import 'checksum/credit_card.dart';
+import 'checksum/iban.dart';
+import 'checksum/luhn.dart';
+import 'common/any.dart';
 import 'common/any_object.dart';
+import 'common/boolean.dart';
 import 'common/not_empty.dart';
 import 'common/not_empty_list.dart';
 import 'common/required.dart';
+import 'common/required_if.dart';
+import 'format/base64.dart';
+import 'format/cidr.dart';
+import 'format/digest.dart';
+import 'format/e164.dart';
+import 'format/hex.dart';
+import 'format/hex_color.dart';
+import 'format/hostname.dart';
+import 'format/ip.dart';
+import 'format/jwt.dart';
+import 'format/mac.dart';
+import 'format/mongo_id.dart';
+import 'format/semver.dart';
+import 'format/uuid.dart';
+import 'list/list_length.dart';
+import 'list/unique.dart';
+import 'meta/keys.dart';
 import 'meta/list_of.dart';
 import 'meta/list_of_different_objects.dart';
 import 'meta/list_of_objects.dart';
 import 'meta/nested_object.dart';
 import 'meta/or.dart';
+import 'meta/values.dart';
 import 'meta/variable_object.dart';
+import 'meta/when.dart';
 import 'modifiers/default.dart';
 import 'modifiers/leave_only.dart';
 import 'modifiers/remove.dart';
+import 'modifiers/split.dart';
 import 'modifiers/to_lc.dart';
 import 'modifiers/to_uc.dart';
 import 'modifiers/trim.dart';
 import 'numeric/decimal.dart';
 import 'numeric/integer.dart';
+import 'numeric/max_decimals.dart';
 import 'numeric/max_number.dart';
 import 'numeric/min_number.dart';
 import 'numeric/number_between.dart';
@@ -25,17 +51,25 @@ import 'numeric/positive_integer.dart';
 import 'special/email.dart';
 import 'special/equal_to_field.dart';
 import 'special/iso_date.dart';
+import 'special/iso_datetime.dart';
+import 'special/iso_time.dart';
 import 'special/url.dart';
+import 'string/contains.dart';
+import 'string/digits.dart';
+import 'string/ends_with.dart';
 import 'string/eq.dart';
 import 'string/length_between.dart';
 import 'string/length_equal.dart';
 import 'string/like.dart';
 import 'string/max_length.dart';
 import 'string/min_length.dart';
+import 'string/not_one_of.dart';
 import 'string/one_of.dart';
+import 'string/starts_with.dart';
 import 'string/string.dart';
 
-/// The rules of the LIVR specification by their names in the specification.
+/// The rules of the LIVR specification (2.0 and the 2.5 draft) by their
+/// names in the specification.
 /// Validators also find them by their camelCase names (`minLength`).
 const Map<String, RuleBuilder> builtInRules = {
   'required': required,
@@ -73,4 +107,38 @@ const Map<String, RuleBuilder> builtInRules = {
   'list_of_objects': listOfObjects,
   'or': or,
   'list_of_different_objects': listOfDifferentObjects,
+  // LIVR 2.5
+  'boolean': boolean,
+  'any': any,
+  'required_if': requiredIf,
+  'not_one_of': notOneOf,
+  'digits': digits,
+  'starts_with': startsWith,
+  'ends_with': endsWith,
+  'contains': contains,
+  'max_decimals': maxDecimals,
+  'iso_datetime': isoDatetime,
+  'iso_time': isoTime,
+  'list_length': listLength,
+  'unique': unique,
+  'split': split,
+  'when': when,
+  'values': values,
+  'keys': keys,
+  'uuid': uuid,
+  'ip': ip,
+  'cidr': cidr,
+  'hostname': hostname,
+  'base64': base64,
+  'hex': hex,
+  'digest': digest,
+  'mongo_id': mongoId,
+  'hex_color': hexColor,
+  'mac': mac,
+  'e164': e164,
+  'semver': semver,
+  'jwt': jwt,
+  'luhn': luhn,
+  'credit_card': creditCard,
+  'iban': iban,
 };

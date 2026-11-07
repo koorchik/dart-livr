@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-`livr` is a Dart implementation of the LIVR specification (Language Independent Validation Rules, https://livr-spec.org). Zero runtime dependencies; it runs on the VM, AOT and the web. Performance is a priority: measure changes on hot paths with the benchmark.
+`livr` is a Dart implementation of the LIVR specification (Language Independent Validation Rules, https://livr-spec.org): LIVR 2.0 and the rules of the 2.5 draft (`drafts/v2.5.md` in the LIVR repository). Zero runtime dependencies; it runs on the VM, AOT and the web. Performance is a priority: measure changes on hot paths with the benchmark.
 
 ## Commands
 
@@ -20,11 +20,11 @@ dart run benchmark/benchmark.dart                                               
 ## Architecture (lib/)
 
 - `livr.dart` - public API; `util.dart` - helpers for custom rules; `rules.dart` - builders of all built-in rules
-- `src/rule.dart` - the rule contract: `LivrRule` (`RuleResult Function(value, allValues)`), `RuleBuilder` (`LivrRule Function(args, context)`), `RuleResult`, `RuleContext`, `LivrSchemaException`
+- `src/rule.dart` - the rule contract: `LivrRule` (`RuleResult Function(value, allValues)`), `RuleBuilder` (`LivrRule Function(args, context)`), `RuleResult`, `RuleContext`, `LivrSchemaException`; `context.clock` (an extension over the internal `ClockRuleContext`, so other `RuleContext` implementations keep compiling) is the `now` argument of the validator
 - `src/validator.dart` - `Validator<T>` (compiles when created, immutable; the type of the output is required: `Validator(schema, User.new)` with an extension type over the output map, or `User.fromJson`; `Validator.untyped(schema)` returns the map, for schemas built at run time), `ValidationResult<T>` (sealed: `ValidationSuccess<T>` / `ValidationFailure`, which is a `ValidationResult<Never>`, so it fits any `T`; `map()` converts the output), `LivrAlias`, the global registry (`registerDefaultRules`, `registerAliasedDefaultRule`, `defaultAutoTrim`)
 - `src/compiler.dart` - rule parsing, field chains, `CompiledObject`, `RuleContext` implementation, aliases, camelCase registration (`addRule`)
 - `src/object_output.dart` - `ObjectOutput`, the output map of an object: values in a list by the index of the field in the schema (`Shape`), filled without hashing. It must behave like any mutable `Map` (`test/object_output_test.dart`)
-- `src/util.dart` - `isNoValue`, `isPrimitive`, `livrToString` (JavaScript number formatting), `parseNumber`, `codePointLength`, `trimDeep` (copy-on-write), `SingleFieldMap`
+- `src/util.dart` - `isNoValue`, `isPrimitive`, `livrToString` (JavaScript number formatting, the string form of LIVR 2.5), `parseNumber`, `codePointLength`, `trimDeep` (copy-on-write), `parseReference` (field references of `required_if` and `when`), `SingleFieldMap`
 - `src/rules/<group>/<rule>.dart` - one rule per file, `src/rules/built_in_rules.dart` - the name → builder map
 
 ### RuleResult
@@ -35,7 +35,8 @@ dart run benchmark/benchmark.dart                                               
 
 - One rule per file: the snake_case spec name as the file name, one public `RuleBuilder` in lowerCamelCase (`minLength`; `default` is `defaultValue`). An argument-less rule returns a private top-level function (a constant tear-off, no allocation per validator)
 - Every file is self-contained: it imports only `../../rule.dart` and `../../util.dart`. No imports between rule files and no shared rule-specific modules; repeat small code instead (`_parseDecimal` is in both decimal rules)
-- Metarules use only `RuleContext.compileField` / `compileObject`, like third-party metarules
+- Metarules use only `RuleContext.compileField` / `compileObject`, like third-party metarules. `allValues` is the containing object: aliases and `or` pass it on, `list_of`, `values` and `keys` pass an empty map
+- Arguments (spec 2.6): `{rule: null}` is one `null` argument: builders get `[null]`, as in 2.0, so the 2.0 rules and custom rules keep their 2.0 handling, the 2.5 rules check `args.isEmpty` and reject it, and `iso_date` alone takes `[null]` as no arguments (2.0 ignored its arguments); a LIVR 2.5 rule without arguments rejects any argument; a rule with arguments ignores the ones after them, unchecked (2.0 rules ignore extra arguments too); numbers and strings are interchangeable in arguments (a number is its string form, a string with a number is the number), booleans are neither; `[]` as the rules of `when`, `values` or `keys` is a schema error; format and checksum rules (`format/`, `checksum/`) are scanners, not regular expressions, checked against the JavaScript ones in `test/format_rules_test.dart`
 - Expensive work goes to the builder (arguments, `RegExp` - cached by pattern in `like`, lookup tables); the rule closure only checks values
 - Rules skip empty values (`isNoValue`) except `required`, `not_empty`, `not_empty_list`; non-primitive values are `FORMAT_ERROR` for string, numeric and special rules; modifiers leave them as they are
 - Invalid arguments throw `LivrSchemaException` from the builder (`ruleArg`, `numberArg`, `stringArg`)
@@ -47,6 +48,7 @@ Numeric rules reject booleans; integer rules return `int`, decimal rules `double
 ## Tests (test/)
 
 - `test_suite/` - a copy of the LIVR test suite, not formatted or analyzed; `test_suite_test.dart` runs it, `camel_case_test.dart` runs it again with camelCase rule names
+- `test_suite_2.5/` - a copy of `LIVR/test_suite_2.5`; `test_suite_test.dart` runs it too, with the `now` of `options.json`, and checks that every `schema_errors` case throws `LivrSchemaException`
 - `email_test.dart` - the `email` rule is a scanner for the regular expression of the JavaScript implementation; the test compares both on the suite, edge cases and random strings
 - Tests that change the global registry or `defaultAutoTrim` restore it or live in their own file (every test file runs in its own isolate)
 

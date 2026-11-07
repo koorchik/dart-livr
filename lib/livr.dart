@@ -3,7 +3,13 @@
 library;
 
 export 'src/rule.dart'
-    show LivrRule, RuleBuilder, RuleResult, RuleContext, LivrSchemaException;
+    show
+        LivrRule,
+        RuleBuilder,
+        RuleResult,
+        RuleContext,
+        RuleContextClock,
+        LivrSchemaException;
 export 'src/rules/built_in_rules.dart' show builtInRules;
 export 'src/validator.dart'
     show
