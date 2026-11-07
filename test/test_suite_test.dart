@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 import 'support/test_suite.dart';
 
 // Runs the LIVR test suite (a copy of LIVR/test_suite) and the suite of the
-// LIVR 2.5 draft (a copy of LIVR/test_suite_2.5). Maps are compared ignoring
+// LIVR 2.5 (a copy of LIVR/test_suite_2.5). Maps are compared ignoring
 // the order of keys, and values by type: '1' does not equal 1, while 10
 // equals 10.0, as in Dart
 void main() {

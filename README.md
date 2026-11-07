@@ -2,12 +2,12 @@
 
 [![pub package](https://img.shields.io/pub/v/livr.svg)](https://pub.dev/packages/livr) [![Test](https://github.com/koorchik/dart-livr/actions/workflows/test.yml/badge.svg)](https://github.com/koorchik/dart-livr/actions/workflows/test.yml)
 
-Fast, zero-dependency Dart validator for the [LIVR specification](https://livr-spec.org) (Language Independent Validation Rules, v2.0, and the rules of the [2.5 draft](#livr-25-draft)). Rules are plain data: store them in JSON, send them over the wire and validate the same way, with the same error codes, in Dart, JavaScript, Perl, Python, Go and [other languages](https://livr-spec.org/introduction/implementations.html).
+Fast, zero-dependency Dart validator for the [LIVR specification](https://livr-spec.org) (Language Independent Validation Rules): LIVR 2.0 and [LIVR 2.5](#livr-25). Rules are plain data: store them in JSON, send them over the wire and validate the same way, with the same error codes, in Dart, JavaScript, Perl, Python, Go and [other languages](https://livr-spec.org/introduction/implementations.html).
 
 - Returns only the fields that have rules, everything else is dropped.
 - Reports errors for all fields at once, as codes shaped like the data.
 - Cleans the data on the way: trims strings, converts `"25"` to `25`, sets defaults.
-- Passes the whole LIVR test suite and the suite of the 2.5 draft, on the Dart VM, AOT and the web.
+- Passes the whole LIVR test suite, 2.0 and 2.5, on the Dart VM, AOT and the web.
 
 ## Install
 
@@ -156,9 +156,9 @@ final personValidator = Validator(
 
 See [livr-spec.org](https://livr-spec.org/validation-rules.html) for every rule and its error codes.
 
-### LIVR 2.5 draft
+### LIVR 2.5
 
-The rules of the LIVR 2.5 draft (`drafts/v2.5.md` in the [LIVR repository](https://github.com/koorchik/LIVR)), which can still change.
+The rules added in LIVR 2.5 (the [LIVR 2.5 specification](https://github.com/koorchik/LIVR/blob/master/drafts/v2.5.md)). See [livr-spec.org](https://livr-spec.org/validation-rules.html) for every rule and its error codes.
 
 | Group | Rules |
 |---|---|
@@ -172,7 +172,7 @@ The rules of the LIVR 2.5 draft (`drafts/v2.5.md` in the [LIVR repository](https
 | Formats | `uuid`, `ip`, `cidr`, `hostname`, `base64`, `hex`, `digest`, `mongo_id`, `hex_color`, `mac`, `e164`, `semver`, `jwt` |
 | Checksums | `luhn`, `credit_card`, `iban` |
 
-The draft also fixes three details of 2.0: aliases and `or` are transparent, so `equal_to_field` in them compares with a sibling of the field (in an element of `list_of` the other field is missing); `like` matches `^` and `$` only at the start and the end of the value, as Dart regular expressions always did; the first argument of `iso_date`, if any, must be an options object, so `{"iso_date": "today"}`, which 2.0 ignored, is a schema error. `{"rule": null}` is one `null` argument, and no 2.5 rule takes it: `{"boolean": null}` is a schema error. `{"iso_date": null}` stays the plain `iso_date`, as in 2.0, and the 2.0 rules and custom rules still get `null` as one argument, so `{"default": null}` sets `null` and a custom builder gets `[null]`.
+LIVR 2.5 also fixes three details of 2.0: aliases and `or` are transparent, so `equal_to_field` in them compares with a sibling of the field (in an element of `list_of` the other field is missing); `like` matches `^` and `$` only at the start and the end of the value, as Dart regular expressions always did; the first argument of `iso_date`, if any, must be an options object, so `{"iso_date": "today"}`, which 2.0 ignored, is a schema error. `{"rule": null}` is one `null` argument, and no 2.5 rule takes it: `{"boolean": null}` is a schema error. `{"iso_date": null}` stays the plain `iso_date`, as in 2.0, and the 2.0 rules and custom rules still get `null` as one argument, so `{"default": null}` sets `null` and a custom builder gets `[null]`.
 
 ## Dart specifics
 

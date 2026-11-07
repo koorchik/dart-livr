@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-`livr` is a Dart implementation of the LIVR specification (Language Independent Validation Rules, https://livr-spec.org): LIVR 2.0 and the rules of the 2.5 draft (`drafts/v2.5.md` in the LIVR repository). Zero runtime dependencies; it runs on the VM, AOT and the web. Performance is a priority: measure changes on hot paths with the benchmark.
+`livr` is a Dart implementation of the LIVR specification (Language Independent Validation Rules, https://livr-spec.org): LIVR 2.0 and LIVR 2.5 (`drafts/v2.5.md` in the LIVR repository, a permanent path). Zero runtime dependencies; it runs on the VM, AOT and the web. Performance is a priority: measure changes on hot paths with the benchmark.
 
 ## Commands
 

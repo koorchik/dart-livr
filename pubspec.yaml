@@ -1,8 +1,9 @@
 name: livr
 description: >-
   Fast, zero-dependency Dart validator implementing the Language Independent
-  Validation Rules (LIVR) specification. Rules are plain data.
-version: 0.2.0
+  Validation Rules (LIVR) specification, LIVR 2.0 and LIVR 2.5. Rules are plain
+  data.
+version: 0.2.1
 homepage: https://livr-spec.org
 repository: https://github.com/koorchik/dart-livr
 topics:

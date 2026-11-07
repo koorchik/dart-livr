@@ -1,5 +1,5 @@
 /// Validation with LIVR (Language Independent Validation Rules): rules are
-/// plain data, see https://livr-spec.org.
+/// plain data, see https://livr-spec.org. Implements LIVR 2.0 and LIVR 2.5.
 library;
 
 export 'src/rule.dart'

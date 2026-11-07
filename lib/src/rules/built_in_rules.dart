@@ -68,7 +68,7 @@ import 'string/one_of.dart';
 import 'string/starts_with.dart';
 import 'string/string.dart';
 
-/// The rules of the LIVR specification (2.0 and the 2.5 draft) by their
+/// The rules of the LIVR specification (LIVR 2.0 and LIVR 2.5) by their
 /// names in the specification.
 /// Validators also find them by their camelCase names (`minLength`).
 const Map<String, RuleBuilder> builtInRules = {
