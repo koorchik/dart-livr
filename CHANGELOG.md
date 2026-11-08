@@ -1,3 +1,8 @@
+## 0.2.2 - 2026-11-08
+
+- Security fix in `url`.
+- `url` rejects a dot after the host (`https://example.com.`), host labels longer than 63 characters and ports above 65535, and accepts one-digit ports (`https://example.com:8`), as LIVR 2.5 specifies now. Unicode hosts, `localhost` and IPv4 addresses pass as before.
+
 ## 0.2.1 - 2026-11-07
 
 - Docs: LIVR 2.5 is released, not a draft.
